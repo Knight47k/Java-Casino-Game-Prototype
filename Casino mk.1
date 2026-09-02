@@ -1,1 +1,21 @@
+import javax.swing.JFrame;
 
+public class CasinoGamePrototype {
+   public static void main(String[] args) {
+      JFrame window = new JFrame();
+      
+      // Window Setup
+      window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      window.setResizable(false); 
+      window.setTitle("Casino Prototype");
+      
+      GamePanel gamePanel = new GamePanel();
+      window.add(gamePanel);
+      window.pack();
+      
+      window.setLocationRelativeTo(null);
+      window.setVisible(true);
+      
+      gamePanel.startGameThread();
+   }
+}
