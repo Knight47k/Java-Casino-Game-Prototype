@@ -1,2 +1,2 @@
-# Java-Casino-Game-Prototype
+# Java-Terminal Casino-Game-Prototype
 Casino
