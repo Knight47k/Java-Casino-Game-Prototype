@@ -9,49 +9,42 @@ import java.io.IOException;
 import java.io.FileReader;
 import java.io.BufferedReader;
 
-class Casino
-{  
+class Casino {  
    public static String numberToLetters(long number) {
       if (number <= 0) {
          System.out.println("Either you are broke and there is no point of saving your game or you are so bad at gambling that you are in debt.");
+         return "A"; // Returns a low value to prevent errors
       }
-      
       StringBuilder columnName = new StringBuilder();
-      
       while (number > 0) {
          long modulo = (number - 1) % 26;
          columnName.append((char) ('A' + modulo));
          number = (number - 1) / 26;
       }
-      
       return columnName.reverse().toString();
    
    }
    
    public static long lettersToNumber(String letters) {
       if (letters == null || !letters.matches("[A-Z]+")) {
-         System.out.println("Something went wrong :(");
+         System.out.println("Something went wrong :( ... You probably tried to tamper with the save data");
+         return -1;
       }
-      
       long result = 0;
-      
       for(int i = 0; i < letters.length(); i++) {
          result *= 26;
          result += (letters.charAt(i) - 'A' + 1);
       }
-      
       return result;
    }
    
    public static String generateRandomKey(int length) {
       SecureRandom random = new SecureRandom();
       StringBuilder keyBuilder = new StringBuilder(length);
-        
       for (int i = 0; i < length; i++) {
          char randomChar = (char) ('A' + random.nextInt(26));
          keyBuilder.append(randomChar);
       }
-        
       return keyBuilder.toString();
    }
    
@@ -59,52 +52,42 @@ class Casino
       StringBuilder result = new StringBuilder();
       key = key.toUpperCase();
       int keyIndex = 0;
-
       for (int i = 0; i < text.length(); i++) {
          char c = text.charAt(i);
-
          if (Character.isLetter(c)) {
             boolean isLowerCase = Character.isLowerCase(c);
             int base = isLowerCase ? 'a' : 'A';
-                
             int shift = key.charAt(keyIndex % key.length()) - 'A';
-                
             char encryptedChar = (char) ((c - base + shift) % 26 + base);
             result.append(encryptedChar);
-                
             keyIndex++;
-                
          } else {
-                
             result.append(c);
          }
       }
       return result.toString();
+   
    }
    
    public static String decrypt(String text, String key) {
       StringBuilder result = new StringBuilder();
       key = key.toUpperCase();
       int keyIndex = 0;
-
       for (int i = 0; i < text.length(); i++) {
          char c = text.charAt(i);
-
          if (Character.isLetter(c)) {
             boolean isLowerCase = Character.isLowerCase(c);
             int base = isLowerCase ? 'a' : 'A';
-                
             int shift = key.charAt(keyIndex % key.length()) - 'A';
-                
             char decryptedChar = (char) ((c - base - shift + 26) % 26 + base);
             result.append(decryptedChar);
-                
             keyIndex++;
          } else {
             result.append(c);
          }
       }
       return result.toString();
+      
    }
    
    public static String textToBinary(String text) {
@@ -118,20 +101,22 @@ class Casino
       return binaryResult.toString().trim();
    }
    
-   public static String binaryToText(String binary) {
+   public static String binaryToText(String binary) throws NumberFormatException {
       StringBuilder textResult = new StringBuilder();
       String[] blocks = binary.split("\\s+");
       for (String block : blocks) {
          if (!block.isEmpty()) {
             int charCode = Integer.parseInt(block, 2);
             textResult.append((char) charCode);
+         
          }
       }
       return textResult.toString();
+   
    }
    
-   public static int Save(int userMoney) {
-      int tamperCheck = 1000000000 - userMoney; // 1 Billion - userMoney
+   public static int Save(long userMoney) {
+      long tamperCheck = 1000000000 - userMoney; // 1 Billion - userMoney
       
       String userMoneyString = numberToLetters(userMoney);
       String tamperCheckString = numberToLetters(tamperCheck);
@@ -148,7 +133,6 @@ class Casino
       String tamperCheckStringEncryptedBinary = textToBinary(tamperCheckStringEncrypted);
       
       String path = "GameSaveData.txt";
-        
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
          writer.write(cipherKey1Binary + "\n");
          writer.write(cipherKey2Binary + "\n");
@@ -162,17 +146,19 @@ class Casino
       return 0;
    }
 
-   public static void main(String[] args)
-   {
-      System.out.println("Welcome to the Casino");
-      System.out.println("Loading System Data ....");
-      
+   public static long Load() {
       String cipherKey1 = "";
       String cipherKey2 = "";
-      long userMoney = 0;
+      long userMoney = 100; // Default Money
       long tamperCheck = 0;
       int count = 1;
       String filePath = "GameSaveData.txt";
+      
+      File file = new File(filePath);
+      if (!file.exists()) {
+         System.out.println("No save file found");
+         return 100;
+      }
       
       try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -189,8 +175,10 @@ class Casino
                   count += 1;
                } else if (count == 4) {
                   tamperCheck = lettersToNumber(decrypt(binaryToText(line), cipherKey2));
-                  if (userMoney + tamperCheck != 1000000000) {
-                     userMoney = 100;
+                  
+                  if ((userMoney == -1 || tamperCheck == -1 || userMoney + tamperCheck != 1000000000)) {
+                     System.out.println("Dumbass tampering with the save data won't work");
+                     return 100;
                   }
                   count += 1;
                }
@@ -199,9 +187,23 @@ class Casino
             }
       } catch (IOException e) {
             System.err.println("Error reading the file: " + e.getMessage());
+            return 100;
       }
-      
-      System.out.println("Bank Balance: " + userMoney);
-      // Save(userMoney);
+      return userMoney;
+ 
    }
-}   
+   
+   public static void main(String[] args) {
+      System.out.println("Welcome to the Casino");
+      System.out.println("Loading System Data ....");
+        
+      long userMoney = Load();
+        
+      System.out.println("Bank Balance: " + userMoney);
+      
+      
+      
+      // Save(userMoney);
+  
+   }
+}  
