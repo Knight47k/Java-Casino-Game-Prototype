@@ -21,7 +21,7 @@ class Casino {
             try {
                 return sc.nextLong();
             } catch (InputMismatchException e) {
-                System.out.println("❌ Invalid input! Please enter a whole number.");
+                System.out.println("Invalid input! Please enter a whole number.");
                 sc.next(); // Clear the invalid input from buffer
             }
         }
@@ -204,7 +204,7 @@ class Casino {
 
     private static void unlock(String id) {
         if (!unlockedAchievements.contains(id)) {
-            System.out.println("\n🏆 ACHIEVEMENT UNLOCKED: " + id + "!");
+            System.out.println("\nACHIEVEMENT UNLOCKED: " + id + "!");
             unlockedAchievements.add(id);
         }
     }
@@ -217,7 +217,7 @@ class Casino {
         }
         long reward = 100 + rand.nextInt(500);
         lastClaimDate = today;
-        System.out.println("🎁 DAILY REWARD: You received $" + reward + "!");
+        System.out.println("DAILY REWARD: You received $" + reward + "!");
         return money + reward;
     }
 
