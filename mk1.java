@@ -161,7 +161,7 @@ class Casino {
     // --- MAIN GAME LOOP ---
     public static void main(String[] args) {
         System.out.println("*********************************");
-        System.out.println("   WELCOME TO THE SECURE CASINO  ");
+        System.out.println("  WELCOME TO THE INSECURE CASINO ");
         System.out.println("*********************************");
         long userMoney = Load();
         boolean running = true;
