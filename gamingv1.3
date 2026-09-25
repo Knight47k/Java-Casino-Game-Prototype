@@ -21,8 +21,8 @@ class Casino {
             try {
                 return sc.nextLong();
             } catch (InputMismatchException e) {
-                System.out.println("Invalid input! Please enter a whole number.");
-                sc.next(); // Clear the invalid input from buffer
+                System.out.println("[!] Invalid input! Please enter a whole number.");
+                sc.next(); 
             }
         }
     }
@@ -138,7 +138,6 @@ class Casino {
         String uMoneyEnc = encrypt(userMoneyString, cipherKey1);
         String uTamperEnc = encrypt(tamperCheckString, cipherKey2);
         
-        // Save Date and Achievements
         String achievementsString = String.join(",", unlockedAchievements);
         String extraData = lastClaimDate + "|" + achievementsString;
         String extraEnc = encrypt(extraData, cipherKey3);
@@ -150,7 +149,7 @@ class Casino {
             writer.write(textToBinary(uMoneyEnc) + "\n");
             writer.write(textToBinary(uTamperEnc) + "\n");
             writer.write(textToBinary(extraEnc));
-            System.out.println("\n[System] Game saved successfully!");
+            // Removed "Saved successfully" print from here so it doesn't spam during auto-saves
         } catch (IOException e) {
             System.err.println("Error saving: " + e.getMessage());
         }
@@ -204,7 +203,7 @@ class Casino {
 
     private static void unlock(String id) {
         if (!unlockedAchievements.contains(id)) {
-            System.out.println("\nACHIEVEMENT UNLOCKED: " + id + "!");
+            System.out.println("\n[ACHIEVEMENT UNLOCKED]: " + id + "!");
             unlockedAchievements.add(id);
         }
     }
@@ -215,9 +214,14 @@ class Casino {
             System.out.println("You already claimed your reward today. Come back tomorrow!");
             return money;
         }
-        long reward = 100 + rand.nextInt(500);
+        
+        long reward = 100 + rand.nextInt(251); // $100 to $350
         lastClaimDate = today;
-        System.out.println("DAILY REWARD: You received $" + reward + "!");
+        
+        // IMPORTANT: Save immediately so spamming restart doesn't work
+        Save(money + reward);
+        
+        System.out.println("[DAILY REWARD]: You received $" + reward + "!");
         return money + reward;
     }
 
@@ -265,7 +269,11 @@ class Casino {
                     if (unlockedAchievements.isEmpty()) System.out.println("None yet!");
                     for (String a : unlockedAchievements) System.out.println("- " + a);
                 }
-                case "12" -> { Save(userMoney); running = false; }
+                case "12" -> { 
+                    Save(userMoney); 
+                    System.out.println("[System] Progress saved.");
+                    running = false; 
+                }
                 default -> System.out.println("Invalid option.");
             }
             if (gamesPlayed.size() == 10) unlock("CASINO TOURIST");
@@ -277,7 +285,7 @@ class Casino {
         }
     }
 
-    // --- GAMES (Modified to use getSafeInt/Long and checkAchievements) ---
+    // --- GAMES ---
     private static long playCoinFlip(long money) {
         long bet = getSafeLong("Bet: $");
         if (bet > money || bet <= 0) return money;
