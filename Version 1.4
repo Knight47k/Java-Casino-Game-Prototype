@@ -181,7 +181,7 @@ class Casino {
         if (type == 1) number = intInput("Number (0-36): ", 0, 36);
         else pick = type == 2 ? option("Red/Black (r/b): ", "r", "b") : option("Even/Odd (e/o): ", "e", "o");
         int roll = RANDOM.nextInt(37); String color = roll == 0 ? "g" : (roll % 2 == 0 ? "b" : "r");
-        boolean won = type == 1 ? roll == number : type == 2 ? pick.equals(color) : roll != 0 && (pick.equals("e") == roll % 2 == 0);
+        boolean won = type == 1 ? roll == number : type == 2 ? pick.equals(color) : roll != 0 && (pick.equals("e") == (roll % 2 == 0));
         System.out.println("Result: " + roll + (roll == 0 ? " (green)" : " (" + (color.equals("r") ? "red" : "black") + ")"));
         long prize = type == 1 ? b * 35 : b; result(won ? add(money, prize) : money - b, b, won); return won ? add(money, prize) : money - b;
     }
